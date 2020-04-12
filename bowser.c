@@ -104,12 +104,12 @@ sprite_t * clone_bowser(){
 	size_t sz = (
 		sizeof(sprite_t)
 		+ sizeof(animation_t) * BOWSER_ALLOC[0]
-		//~ + sizeof(frame_t)     * BOWSER_ALLOC[1]
-		//~ + sizeof(polygon_t)   * BOWSER_ALLOC[2]
-		//~ + sizeof(int)         * BOWSER_ALLOC[3]
+		+ sizeof(frame_t)     * BOWSER_ALLOC[1]
+		+ sizeof(polygon_t)   * BOWSER_ALLOC[2]
+		+ sizeof(int)         * BOWSER_ALLOC[3] * 2
 	);
 	
-	printf("sizes:\n\tspri: %d\n\tanim: %d\n\tfram: %d\n\tpoly: %d\n\tint: %d\n\n",
+	printf("sizes:\n\tspri: %lu\n\tanim: %lu\n\tfram: %lu\n\tpoly: %lu\n\tint: %lu\n\n",
 		sizeof(sprite_t),
 		sizeof(animation_t),
 		sizeof(frame_t),
@@ -121,7 +121,7 @@ sprite_t * clone_bowser(){
 	
 	void * c = (void *)s + sizeof(sprite_t);
 	
-	printf("s: %p sz: %d s+sz: %p &s[1]: %p c: %p\n", s, sz, s + sz, &s[1], c);
+	printf("s: %p sz: %x s+sz: %p &s[1]: %p c: %p\n", s, (unsigned int)sz, (void *)s + sz, &s[1], c);
 	
 	printf("curr: %p targ: %p\n", c, &s->animations);
 	
@@ -130,7 +130,8 @@ sprite_t * clone_bowser(){
 	
 	int fstride = 0;
 	int pstride = 0;
-	//~ int vstride = 0;
+	int vstride = 0;
+	int astride = 0;
 	
 	for(int a = 0; a < BOWSER_ALLOC[0]; a++){
 		//~ // just need the anim index
@@ -139,21 +140,28 @@ sprite_t * clone_bowser(){
 		s->animations[a].frames = c;
 		c += sizeof(frame_t) * BOWSER_FRAMES[fstride];
 		
-		//~ for(int f = 0; f < BOWSER_FRAMES[fstride]; f++){
-			//~ s->animations[a].frames[f].polygons = c;
-			//~ c += sizeof(polygon_t) * BOWSER_POLYGONS[pstride];
+		for(int f = 0; f < BOWSER_FRAMES[fstride]; f++){
+			printf("curr: %p targ: %p\n", c, &s->animations[a].frames[f].polygons);
+			s->animations[a].frames[f].polygons = c;
+			c += sizeof(polygon_t) * BOWSER_POLYGONS[pstride];
 			
-			//~ for(int p = 0; p < BOWSER_POLYGONS[pstride]; p++){
-				//~ printf("curr: %p anim: %d  fram: %d poly: %d\n", c, a, f, p);
-				//~ s->animations[a].frames[f].polygons[p].x = c;
-				//~ c += sizeof(int) * BOWSER_VERTICES[vstride];
-				//~ printf("curr: %p anim: %d  fram: %d poly: %d xory: y\n", c, a, f, p);
-				//~ s->animations[a].frames[f].polygons[p].y = c;
-				//~ c += sizeof(int) * BOWSER_VERTICES[vstride];
+			for(int p = 0; p < BOWSER_POLYGONS[pstride]; p++){
+				printf("curr: %p anim: %d  fram: %d poly: %d xory: x\n", c, a, f, p);
+				s->animations[a].frames[f].polygons[p].x = c;
+				memcpy(c, BOWSER_ARRAYS[astride], sizeof(int) * BOWSER_VERTICES[vstride]);
+				c += sizeof(int) * BOWSER_VERTICES[vstride];
 				//~ vstride++;
-			//~ }
-			//~ pstride++;
-		//~ }
+				astride++;
+				printf("curr: %p anim: %d  fram: %d poly: %d xory: y\n", c, a, f, p);
+				s->animations[a].frames[f].polygons[p].y = c;
+				memcpy(c, BOWSER_ARRAYS[astride], sizeof(int) * BOWSER_VERTICES[vstride]);
+				c += sizeof(int) * BOWSER_VERTICES[vstride];
+				vstride++;
+				astride++;
+				printf("vs: %d as: %d\n", vstride, astride);
+			}
+			pstride++;
+		}
 		fstride++;
 	}
 	
