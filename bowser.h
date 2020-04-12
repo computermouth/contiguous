@@ -4,4 +4,6 @@
 
 #include "util.h"
 
+sprite_t * clone_bowser();
+
 #endif
