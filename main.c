@@ -4,7 +4,7 @@
 
 int main(){
 	
-	sprite_t * first = clone_bowser();
+	sprite_t * first = clone_sprite(BOWSER);
 	
 	free(first);
 	

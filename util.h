@@ -23,4 +23,14 @@ typedef struct {
 	animation_t * animations;
 } sprite_t;
 
+typedef struct {
+	int * alloc;
+	int * frames;
+	int * polygons;
+	int * vertices;
+	int ** arrays;
+} reference_t;
+
+sprite_t * clone_sprite(reference_t);
+
 #endif

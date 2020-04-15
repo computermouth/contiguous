@@ -4,6 +4,6 @@
 
 #include "util.h"
 
-sprite_t * clone_bowser();
+extern reference_t BOWSER;
 
 #endif
